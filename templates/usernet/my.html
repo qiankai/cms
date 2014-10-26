@@ -1,0 +1,28 @@
+{% extends "usernet/base.html" %}
+{% block contant %}
+<div class="container">
+    <h3>我的圈子</h3>
+    <hr/>
+{% if status %}
+      <div class="alert alert-success" role="alert">
+
+  <strong>暂时没有数据</strong>
+</div>
+  {% endif %}
+{% for px in p %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><a href = "../show/?id={{ px.id }}"><span class="glyphicon glyphicon-user"><input type="hidden" value={{ px.id }}></span>{{ px.Usr_Name }}</a></h3>
+
+  </div>
+  <div class="panel-body">
+    <p>电话：{{ px.Usr_Mobile }}</p>
+    <a href = "../show/?id={{ px.id }}"><span class="glyphicon glyphicon-search"><input type="hidden" value={{ px.id }}></span>详细信息</a>
+
+  </div>
+</div>
+    {% endfor %}
+</div>
+
+{% endblock %}

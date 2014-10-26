@@ -12,6 +12,17 @@ import xml.etree.ElementTree as ET
 import time
 import hashlib
 
+@login_required
+def myloop(request):
+    if request.method == 'GET':
+        pname = request.user
+        pre = People.objects.get(Usr_Name = pname)
+        p = People.objects.filter(Prev_Usr = pre,isdel=0)
+        status =0
+        if p.count()<1:
+            status=1
+        return render_to_response('usernet/my.html', {'status':status,'p':p,},
+                              context_instance=RequestContext(request))
 
 @login_required
 def insert(request,wx_flag=None):
@@ -23,18 +34,9 @@ def insert(request,wx_flag=None):
        Usr_Remark = request.POST.get('remark','')
        tags = request.POST.get('tags','')
        pre_id = request.POST.get('pre_id','')
-       p = People(Usr_Name = Usr_Name,Usr_Mobile = Usr_Mobile,Usr_Remark=Usr_Remark,active = 0)
+       p = People(Usr_Name = Usr_Name,Usr_Mobile = Usr_Mobile,Usr_Remark=Usr_Remark,active = 0,isdel = 0,)
        p.save()
-       if pre_id =='':
-           pre_id = request.user
-       if pre_id != '':
-           try:
-               pre = People.objects.filter(Usr_Name = pre_id,active = 1)
-           except People.DoesNotExist:
-               print "error"
-           else:
-               p.Prev_Usr=pre[0]
-               p.save()
+
        for tag in tags.replace(u'，',',').split(','):
            try:
                t = Tags.objects.get(tag = tag)
@@ -45,6 +47,20 @@ def insert(request,wx_flag=None):
                p.save()
            else:
                p.tags.add(t)
+               p.save()
+       if request.user.is_superuser:
+           status="ok"
+           return render_to_response('usernet/index.html', {'status':status,'wx_flag':wx_flag},
+                              context_instance=RequestContext(request))
+       if pre_id =='':
+           pre_id = request.user
+       if pre_id != '':
+           try:
+               pre = People.objects.filter(Usr_Name = pre_id,active = 1)
+           except People.DoesNotExist:
+               print "error"
+           else:
+               p.Prev_Usr=pre[0]
                p.save()
        status="ok"
     # Get all posts from DB
@@ -90,16 +106,16 @@ def search(request):
     if request.method == 'POST':
         q = request.POST.get("q")
         if q !='':
-            p = People.objects.filter(Usr_Name__contains=q)
+            p = People.objects.filter(Usr_Name__contains=q,isdel=0)
             tag = Tags.objects.filter(tag__contains = q)
             p_l = []
             for t in tag:
-                x =  People.objects.filter(tags = t)
+                x =  People.objects.filter(tags = t,isdel=0)
                 p_l.append(x)
-            pre_man = People.objects.filter(Usr_Name__contains=q)
+            pre_man = People.objects.filter(Usr_Name__contains=q,isdel=0)
             pre_l=[]
             for pre in pre_man:
-                pre_x = People.objects.filter(Prev_Usr = pre)
+                pre_x = People.objects.filter(Prev_Usr = pre,isdel=0)
                 pre_l.append(pre_x)
         if p.count()<1 and p_l==[] and pre_l==[]:
             status=0
@@ -120,6 +136,7 @@ def show(request):
     return render_to_response('usernet/show.html',{'person':t ,'tags':tag},
                               context_instance=RequestContext(request))
 
+@login_required
 def update(request):
     if request.method == 'GET':
         pid = request.GET.get('id')
@@ -157,9 +174,21 @@ def update(request):
                p.tags.add(t)
                p.save()
 
-        status = "update ok"
+        status = "Update " + p.Usr_Name  + " successfully!"
         return render_to_response('usernet/message.html',{'status':status},
                               context_instance=RequestContext(request))
+
+@login_required
+def delete(request):
+    if request.method == 'GET':
+        pid = request.GET.get('id')
+        p = People.objects.get(id = pid)
+        p.isdel = 1
+        p.save()
+        status = "Delete "+ p.Usr_Name  + " successfully!"
+        return render_to_response('usernet/message.html',{'status':status},
+                              context_instance=RequestContext(request))
+
 
 
 def login_view(request):
@@ -168,13 +197,13 @@ def login_view(request):
         if user is not None:
             login(request, user)
             print request.user
-            return HttpResponseRedirect('../../usernet/search/')
+            return HttpResponseRedirect('../../usernet/my/')
     return render_to_response('usernet/login.html',{},
                               context_instance=RequestContext(request))
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect('../../usernet/search/')
+    return HttpResponseRedirect('../../usernet/my/')
     #return render_to_response('usernet/login.html',{},
     #                          context_instance=RequestContext(request))
 

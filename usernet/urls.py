@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from views import insert, manage, active, search, show,update
+from views import insert, manage, active, search, show,update,delete,myloop
 
 urlpatterns=patterns('',
     #url(r'^$','authserver.views.index'),
@@ -9,5 +9,7 @@ urlpatterns=patterns('',
     url(r'^search/',search,),
     url(r'^show/',show,),
     url(r'^update/',update,),
+    url(r'^delete/',delete,),
+    url(r'^my/',myloop,),
     url(r'^$',search,),
 )

@@ -12,6 +12,7 @@ class People(models.Model):
     Usr_Remark = models.TextField(null= True)
     tags = models.ManyToManyField(Tags,null=True)
     active = models.IntegerField()
+    isdel = models.IntegerField()
 
     Prev_Usr = models.ForeignKey('self',related_name="Prev_related",null=True)
     Weight = models.IntegerField(null=True)
