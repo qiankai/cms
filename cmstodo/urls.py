@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from cmstodo import settings
 from django.conf.urls.static import static
-from usernet.views import login_view, logout_view
+from usernet.views import login_view, logout_view, passwd_view
 
 from django.contrib import admin
 admin.autodiscover()
@@ -14,4 +14,5 @@ urlpatterns = patterns('',
     url(r'^usernet/',include('usernet.urls')),
     url(r'^accounts/login/$',  login_view),
     url(r'^accounts/logout/$', logout_view),
+    url(r'^accounts/passwd/$', passwd_view),
 )

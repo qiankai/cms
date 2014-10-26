@@ -1,5 +1,10 @@
 {% extends "usernet/base.html" %}
 {% block contant %}
+    {% if status_code == 1 %}
+    <div class="container"><div class="alert alert-success" role="alert">{{ status }}</div></div>
+    {% endif %}
+    {% if status_code == 0 %}
     <div class="container"><div class="alert alert-danger" role="alert">{{ status }}</div></div>
+    {% endif %}
 
 {% endblock %}

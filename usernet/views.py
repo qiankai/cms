@@ -16,8 +16,8 @@ import hashlib
 def myloop(request):
     if request.method == 'GET':
         pname = request.user
-        pre = People.objects.get(Usr_Name = pname)
-        p = People.objects.filter(Prev_Usr = pre,isdel=0)
+        pre = People.objects.filter(Usr_Name = pname)
+        p = People.objects.filter(Prev_Usr = pre[0],isdel=0)
         status =0
         if p.count()<1:
             status=1
@@ -73,7 +73,8 @@ def manage(request):
         return render_to_response('usernet/active.html', {'Posts': p},
                               context_instance=RequestContext(request))
     status = "你没有权限！"
-    return render_to_response('usernet/message.html', {'status': status},
+    status_code = 0
+    return render_to_response('usernet/message.html', {'status': status,'status_code':status_code,},
                               context_instance=RequestContext(request))
 @login_required
 def active(request):
@@ -92,9 +93,12 @@ def active(request):
     user = User.objects.create_user(username=p_name,password=p_password,)
     user.save
 
-    status = "ok"
 
-    return render_to_response('usernet/message.html',{'status':status},
+
+    status = "ok"
+    status_code = 1
+
+    return render_to_response('usernet/message.html',{'status':status,'status_code':status_code,},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -175,7 +179,8 @@ def update(request):
                p.save()
 
         status = "Update " + p.Usr_Name  + " successfully!"
-        return render_to_response('usernet/message.html',{'status':status},
+        status_code = 1
+        return render_to_response('usernet/message.html',{'status':status,'status_code':status_code,},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -186,7 +191,8 @@ def delete(request):
         p.isdel = 1
         p.save()
         status = "Delete "+ p.Usr_Name  + " successfully!"
-        return render_to_response('usernet/message.html',{'status':status},
+        status_code = 1
+        return render_to_response('usernet/message.html',{'status':status,'status_code':status_code,},
                               context_instance=RequestContext(request))
 
 
@@ -201,11 +207,32 @@ def login_view(request):
     return render_to_response('usernet/login.html',{},
                               context_instance=RequestContext(request))
 
+@login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect('../../usernet/my/')
     #return render_to_response('usernet/login.html',{},
     #                          context_instance=RequestContext(request))
+
+@login_required
+def passwd_view(request):
+    if request.method =='POST':
+        username = request.POST.get('username',request.user)
+        old_passwd = request.POST.get('oldpasswd')
+        new_passwd = request.POST.get('newpasswd')
+
+        user = User.objects.get(username = username)
+        if user.check_password(old_passwd):
+            user.set_password(new_passwd)
+            user.save()
+            status = "修改密码成功!"
+            status_code = 1
+        else:
+            status = "密码修改失败，请重试！【旧密码错误】"
+            status_code = 0
+        return render_to_response('usernet/message.html',{'status':status,'status_code':status_code,},context_instance=RequestContext(request))
+    return render_to_response('usernet/passwd.html',{},
+                              context_instance=RequestContext(request))
 
 #*********wechat**************
 
