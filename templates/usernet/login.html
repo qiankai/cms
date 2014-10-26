@@ -1,0 +1,14 @@
+{%  extends "usernet/base.html" %}
+{% block contant %}
+<div class="container">
+
+      <form role="form"  method="post" action="" style="max-width: 330px;padding: 15px; margin: 0 auto">
+          {% csrf_token %}
+        <h2 style="margin-bottom: 10px;" >请登录</h2>
+        <input type="text" class="form-control" style="padding: 10px;font-size: 16px;height: auto;margin-bottom: 10px;" placeholder="用户名" name="username" required="required" autofocus>
+        <input type="password" class="form-control" style="margin-bottom: 10px;padding: 10px;font-size: 16px;height: auto;" placeholder="Password" name="password" required="required">
+        <button class="btn btn-lg btn-primary btn-block" type="submit">登陆</button>
+      </form>
+
+    </div>
+{% endblock %}

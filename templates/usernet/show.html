@@ -1,0 +1,34 @@
+{% extends "usernet/base.html" %}
+{% block contant %}
+ <div class="container">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">{{ person.Usr_Name }}</h3>
+
+  </div>
+  <div class="panel-body">
+    <p>电话：{{ person.Usr_Mobile }}</p>
+<p>备注：{{ person.Usr_Remark }}</p>
+ <p>关系人：{{ person.Prev_Usr }}</p>
+ <p>标签：
+{% for t in tags %}
+        {{ t }}
+ {% endfor %}
+</p>
+  <p>最近更新时间：{{ person.Last_Update }}</p>
+  </div>
+{% if user.username == person.Prev_Usr.Usr_Name %}
+<div class="panel-footer panel-info">
+    <form method="get" action="../update/">
+        <input type="hidden" name="id" value="{{ person.id }}">
+        <input type="submit" class="btn btn-primary" value="Update">
+    </form>
+</div>
+{% endif %}
+</div>
+
+  </div>
+
+
+
+{% endblock %}

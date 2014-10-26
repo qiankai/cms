@@ -1,0 +1,31 @@
+{% extends "usernet/base.html" %}
+{% block contant %}
+    <div class="container">
+    <h1 class="center">Active User</h1>
+
+    {% for post in Posts %}
+      {{ post.Usr_Name }} {{ post.Usr_Mobile }}
+
+      <form method="get" action="../../usernet/active">
+      {% if post.active == 1 %}
+        <span class="glyphicon glyphicon-ok">已激活</span>
+        {% else %}
+        <span class="glyphicon glyphicon-remove">未激活</span>
+        {% endif %}
+        <input  type="hidden" name="id" value="{{ post.id }}">
+        <input type="hidden" name="name" value="{{ post.Usr_Name }}">
+        <input type="hidden" name="last_update" value="{{ post.Last_Update }}">
+        {% if post.active == 1 %}
+        <input type="text" name="openid" placeholder="填写微信OPENID" size = "35" value="" disabled>
+        <input type="text" name="password" placeholder="填写登陆密码" size = "35" value="" disabled>
+        <input type="submit" name="" value="active" disabled>
+        {% else %}
+            <input type="text" name="openid" placeholder="填写微信OPENID" size = "35" value="" required>
+        <input type="text" name="password" placeholder="填写登陆密码" size = "35" value="" required>
+        <button type="submit" class="btn btn-success">Active</button>
+        {% endif %}
+      </form>
+        <hr/>
+    {% endfor %}
+</div>
+{% endblock %}

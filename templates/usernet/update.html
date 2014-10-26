@@ -1,0 +1,53 @@
+{% extends "usernet/base.html" %}
+{% block contant %}
+ <div class="col-md-8 col-md-offset-1">
+    <h3 align="center">信息更新</h3>
+    <form class="form-horizontal" role="form" method="post" action="">
+        {% csrf_token %}
+     <input type="hidden" name="id" value="{{ person.id }}">
+   <div class="form-group">
+      <label for="name" class="col-sm-2 control-label">姓名</label>
+      <div class="col-sm-10">
+         <input type="text" class="form-control" id="name" name="name" value="{{ person.Usr_Name }}"
+            placeholder="请输入名字">
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="mobile" class="col-sm-2 control-label">手机号码</label>
+      <div class="col-sm-10">
+         <input type="text" class="form-control" id="mobile" name="mobile" value="{{ person.Usr_Mobile }}"
+            placeholder="请输入手机号码">
+      </div>
+   </div>
+   <div class="form-group">
+
+         <label for="remark" class="col-sm-2 control-label">描述</label>
+       <div class="col-sm-10">
+         <textarea class="form-control" id="remark" name="remark" value="{{ person.Usr_Remark }}"
+            placeholder="描述"> </textarea>
+       </div>
+
+   </div>
+   <div class="form-group">
+      <label for="tags" class="col-sm-2 control-label">标签</label>
+      <div class="col-sm-10">
+         <input type="text" class="form-control" id="tags" name="tags" value="{{ ta }}"
+            placeholder="请输入标签，以“，”分隔">
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="pre_id" class="col-sm-2 control-label">关系人</label>
+      <div class="col-sm-10">
+         <input type="text" class="form-control" id="pre_id" name="pre_id" value="{{ person.Prev_Usr.Usr_Name }}"
+            placeholder="请输入关系人姓名，默认为登陆人姓名">
+          <input type="hidden" name="pre_user_id" value="{{ person.Prev_Usr.id }}">
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="col-sm-offset-6 col-sm-10">
+         <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+   </div>
+</form>
+ </div>
+{% endblock %}
