@@ -230,8 +230,6 @@ def getReplyXmlArc(msg):
             url = '<a href="http://www.linsuo.com/usernet/wx_insert/">输入链接</a>'
             return getReplyXml(msg,url)
 
-
-
         tplHeader =tplHeader % (msg['FromUserName'],msg['ToUserName'],str(int(time.time())),'news', smart_str(1))
         body = ""
         task_url = url
@@ -239,7 +237,7 @@ def getReplyXmlArc(msg):
         body += tplBody % (smart_str(tok),"",image_url,task_url)
         tpl = tplHeader+body+tplFooter
         return tpl
-    return getReplyXml(msg,"nerver present")
+    return getReplyXml(msg,"nerver present ok")
 
 def responseMsg(request):
     rawStr = request.body
