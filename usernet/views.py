@@ -6,11 +6,17 @@ from django.contrib.auth import authenticate,login,logout
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from models import People,Tags,ActiveUsr
+from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
 
+from cms0.settings import WECHAT_TOKEN
+from django.utils.encoding import smart_str,smart_unicode
+from django.http import HttpResponse
+
 import xml.etree.ElementTree as ET
-import time
+import time,json
 import hashlib
+import urllib2
 
 @login_required
 def myloop(request):
@@ -235,6 +241,54 @@ def passwd_view(request):
                               context_instance=RequestContext(request))
 
 #*********wechat**************
+def bind(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        openid = request.POST.get('openid')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            try:
+                a = ActiveUsr.objects.get(Usr_Name = username)
+            except ActiveUsr.DoesNotExist:
+                pass
+            else:
+                a.OpenId = openid
+                a.save()
+                login(request, user)
+                return HttpResponseRedirect('../../usernet/my/')
+
+        else:
+            status = "Bind " +  " failed!"
+            status_code = 0
+        return render_to_response('usernet/message.html',{'status':status,'status_code':status_code,},
+                              context_instance=RequestContext(request))
+
+
+def oauth2(request):
+    CODE = request.GET.get('code')
+    status_code = 1
+    APPID = 'wx6ea75ebf77f14498'
+    APPSECRET = 'b9649f59a540a25971a27d630493cfdc'
+
+    url_open_accesstoken = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='+APPID+'&secret='+APPSECRET+'&code='+CODE+'&grant_type=authorization_code'
+
+    data = urllib2.urlopen(url_open_accesstoken)
+    msg = json.load(data)
+    ACCESS_TOKEN = msg['access_token']
+    OPENID = msg['openid']
+
+    url_open_userinfo = 'https://api.weixin.qq.com/sns/userinfo?access_token='+ACCESS_TOKEN+'&openid='+OPENID
+
+    data1 = urllib2.urlopen(url_open_userinfo)
+    msg1 =json.load(data1)
+
+    openid=msg1['openid']
+    headimgurl=msg1['headimgurl']
+    nickname=msg1['nickname']
+    return render_to_response('usernet/bind.html',{'openid':openid,'headimgurl':headimgurl,'nickname':nickname,},
+                              context_instance=RequestContext(request))
+
 
 
 #wechat check
@@ -277,23 +331,15 @@ def getReplyXmlArc(msg):
 
     openid = msg['FromUserName']
 
-    try:
-        t = ActiveUsr.objects.get(OpenId = openid)
-    except ActiveUsr.DoesNotExist:
-        return getReplyXml(msg,openid)
-    else:
-        if msg['Content'] == '输入':
-            url = '<a href="http://www.linsuo.com/usernet/wx_insert/">输入链接</a>'
-            return getReplyXml(msg,url)
+    url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6ea75ebf77f14498&redirect_uri=http://www.linsuo.com/usernet/oauth2&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'
 
-        tplHeader =tplHeader % (msg['FromUserName'],msg['ToUserName'],str(int(time.time())),'news', smart_str(1))
-        body = ""
-        task_url = url
-        image_url = ""
-        body += tplBody % (smart_str(tok),"",image_url,task_url)
-        tpl = tplHeader+body+tplFooter
-        return tpl
-    return getReplyXml(msg,"nerver present ok")
+    tplHeader =tplHeader % (msg['FromUserName'],msg['ToUserName'],str(int(time.time())),'news', smart_str(1))
+    body = ""
+    task_url = url
+    image_url = ""
+    body += tplBody % (smart_str("OK OK OK"),"",image_url,task_url)
+    tpl = tplHeader+body+tplFooter
+    return tpl
 
 def responseMsg(request):
     rawStr = request.body
