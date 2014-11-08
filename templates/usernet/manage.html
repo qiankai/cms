@@ -1,0 +1,45 @@
+{% extends "usernet/base.html" %}
+{% block contant %}
+    <div class="container">
+
+    <form class="form-inline" role="form" method="post" action="../manage/">
+        {% csrf_token %}
+   <div class="form-group">
+      <label class="sr-only" for="query">查询</label>
+      <input type="search" class="form-control" id="query" name="q"
+         placeholder="请输入查询内容" required>
+   </div>
+   <button type="submit" class="btn btn-default">查询</button>
+</form>
+
+<hr />
+
+{% if p %}
+<h3>查询结果</h3>
+    <ul class="list-group">
+{% for px in p %}
+    <li class="list-group-item list-group-item-heading">
+        <a href = "../active/?id={{ px.id }}">
+           <h4>{{ px.Usr_Name }}</h4>
+        </a>
+    {% if px.active == 1 %}
+        <span class="label label-primary"><span class="glyphicon glyphicon-ok">已激活</span></span>
+        {% else %}
+        <span class="label label-default"><span class="glyphicon glyphicon-remove">未激活</span></span>
+        {% endif %}
+      {% if px.isdel == 1 %}
+        <span class="label label-danger">删除</span>
+      {% else %}
+         <span class="label label-success">正常</span>
+      {% endif %}
+    </li>
+
+    {% endfor %}
+    <hr/>
+    </ul>
+ {% endif %}
+
+
+
+</div>
+{% endblock %}

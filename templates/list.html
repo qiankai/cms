@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Success</title>
+    
+    <!-- Bootstrap -->
+  </head>
+  <body>
+  <ul>
+    {% for p in device %}
+        <li>{{ p.Gw_Id }}{{ p.Gw_Address }}{{ p.Gw_Port }} <a href="/autherserver/getqr/?id={{ p.id }}">getqr</a></li>
+  {% endfor %}
+</ul>
+  </body>
+</html>
+

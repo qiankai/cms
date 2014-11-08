@@ -1,4 +1,4 @@
-{% extends "usernet/base.html" %}
+{% extends "wechat/base.html" %}
 
 {% block contant %}
 <div class="container">
@@ -23,7 +23,7 @@
 <h3>人名查询结果</h3>
     <ul class="list-group">
 {% for px in p %}
-    <li class="list-group-item list-group-item-heading"><a href = "../show/?id={{ px.id }}"><h4><span class="glyphicon glyphicon-user"><input type="hidden" value={{ px.id }}></span>{{ px.Usr_Name }}</h4></a> </li>
+    <li class="list-group-item list-group-item-heading"><a href = "../show/?id={{ px.id }}"><h4><span class="glyphicon glyphicon-user"><input type="hidden" value={{ px.id }}></span>{{ px.Usr_Name }}</h4></a> <small>{{ px.Usr_Mobile }}</small></li>
     {% endfor %}
     <hr/>
  {% endif %}
@@ -33,7 +33,7 @@
     <ul class="list-group">
 {% for x in p_l %}
     {% for t in x %}
-        <li class="list-group-item list-group-item-heading"><a href = "../show/?id={{ t.id }}"><h4><span class="glyphicon glyphicon-user"><input type="hidden" value={{ px.id }}></span>{{ t.Usr_Name }}</h4></a></li>
+        <li class="list-group-item list-group-item-heading"><a href = "../show/?id={{ t.id }}"><h4><span class="glyphicon glyphicon-user"><input type="hidden" value={{ px.id }}></span>{{ t.Usr_Name }}</h4></a><small>{{ t.Usr_Mobile }}</small></li>
         {% endfor %}
 {% endfor %}
     <hr/>
@@ -44,7 +44,7 @@
     <ul class="list-group">
 {% for pre_x in pre_l %}
     {% for pre_t in pre_x %}
-        <li class="list-group-item list-group-item-heading"><a href = "../show/?id={{ pre_t.id }}"><h4><span class="glyphicon glyphicon-user"><input type="hidden" value={{ px.id }}></span>{{ pre_t.Usr_Name }}</h4></a><p>关系人：{{ pre_t.Prev_Usr }}</p></li>
+        <li class="list-group-item list-group-item-heading"><a href = "../show/?id={{ pre_t.id }}"><h4><span class="glyphicon glyphicon-user"><input type="hidden" value={{ px.id }}></span>{{ pre_t.Usr_Name }}</h4></a><small>{{ pre_t.Usr_Mobile }}</small><p>关系人：{{ pre_t.Prev_Usr }}</p></li>
         {% endfor %}
 {% endfor %}
     <hr/>

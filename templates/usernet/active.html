@@ -1,31 +1,72 @@
 {% extends "usernet/base.html" %}
 {% block contant %}
     <div class="container">
-    <h1 class="center">Active User</h1>
 
-    {% for post in Posts %}
-      {{ post.Usr_Name }} {{ post.Usr_Mobile }}
 
-      <form method="get" action="../../usernet/active">
-      {% if post.active == 1 %}
-        <span class="glyphicon glyphicon-ok">已激活</span>
+
+
+
+
+
+
+       <form class="form-horizontal" role="form" method="post" action="">
+        {% csrf_token %}
+       <div class="form-group">
+      <label for="name" class="col-sm-2 control-label">姓名 </label>
+      <div class="col-sm-10">
+          <h3>{{ post.Usr_Name }}
+       <small>{% if post.active == 1 %}
+        <span class="label label-primary"><span class="glyphicon glyphicon-ok">已激活</span></span>
         {% else %}
-        <span class="glyphicon glyphicon-remove">未激活</span>
+        <span class="label label-default"><span class="glyphicon glyphicon-remove">未激活</span></span>
         {% endif %}
+        {% if post.isdel == 1 %}
+        <span class="label label-danger">删除</span>
+        {% else %}
+         <span class="label label-success">正常</span>
+        {% endif %}
+       </small>
+   </h3>
+
+        {{ post.Usr_Mobile }}
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="password" class="col-sm-2 control-label">登陆密码</label>
+      <div class="col-sm-10">
+         {% if post.active == 1 %}
+        <input type="text" name="password" placeholder="填写登陆密码" id="password" size = "35" value="" disabled>
+        {% else %}
+        <input type="text" name="password" placeholder="填写登陆密码" id="password" size = "35" value="" required>
+        {% endif %}
+      </div>
+   </div>
+
+     <div class="form-group">
+      <label for="manager" class="col-sm-2 control-label">管理员</label>
+      <div class="col-sm-10">
+          {% if a.is_manager == 1 %}
+               <input type="checkbox" name="is_manager" value="1" id = "manager" disabled>
+        {% else %}
+         <input type="checkbox" name="is_manager" value="1" id = "manager">
+        {% endif %}
+      </div>
+   </div>
+
         <input  type="hidden" name="id" value="{{ post.id }}">
         <input type="hidden" name="name" value="{{ post.Usr_Name }}">
         <input type="hidden" name="last_update" value="{{ post.Last_Update }}">
-        {% if post.active == 1 %}
-        <input type="text" name="openid" placeholder="填写微信OPENID" size = "35" value="" disabled>
-        <input type="text" name="password" placeholder="填写登陆密码" size = "35" value="" disabled>
-        <input type="submit" name="" value="active" disabled>
-        {% else %}
-            <input type="text" name="openid" placeholder="填写微信OPENID" size = "35" value="" required>
-        <input type="text" name="password" placeholder="填写登陆密码" size = "35" value="" required>
-        <button type="submit" class="btn btn-success">Active</button>
-        {% endif %}
-      </form>
+
+<div class="form-group">
+      <div class="col-sm-offset-6 col-sm-10">
+         <button type="submit" class="btn btn-success">提交</button>
+      </div>
+   </div>
+
+
+
+        </form>
         <hr/>
-    {% endfor %}
+
 </div>
 {% endblock %}

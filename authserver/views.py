@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -5,7 +6,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.encoding import smart_str,smart_unicode
-from cms0.settings import APPID,SECRET,WECHAT_TOKEN
+from cmstodo.settings import APPID,SECRET,WECHAT_TOKEN
 from django.core.cache import cache
 
 from models import APDevice, People, LoginTmp, LoginHistory, Device
@@ -19,18 +20,17 @@ import json
 import uuid
 
 def createMenu(request):
-    menu = '{"button":' \
-           '[{"name":"online now",' \
-           '"sub_button":' \
-           '[{"type":"click","name":"hello","key":"world"},' \
-           '{"type":"view","name":"local","url":"http://m.hao123.com/a/tianqi"}]}]}'
+    menu = '''{"button":[{"type":"view","name": "新增人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6ea75ebf77f14498&redirect_uri=http://www.linsuo.com/wechat/insert&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"},{"type":"view","name": "查询人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6ea75ebf77f14498&redirect_uri=http://www.linsuo.com/wechat/search&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"}]}'''
+
+
     access_token = getAccessToken(APPID,SECRET)
     QR_Create_Urls="https://api.weixin.qq.com/cgi-bin/menu/create?access_token="+ access_token
-    req = urllib2.Request(QR_Create_Urls)
-    data = menu
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
-    response = opener.open(req, data)
-    return HttpResponse(response)
+    print menu
+    #req = urllib2.Request(QR_Create_Urls,menu.encode("utf-8"))
+
+
+    response = urllib.urlopen(QR_Create_Urls,menu)
+    return HttpResponse(response.read())
 
 
 

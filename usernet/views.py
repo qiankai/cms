@@ -8,8 +8,9 @@ from django.http import HttpResponseRedirect
 from models import People,Tags,ActiveUsr
 from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
-from cms0.settings import WECHAT_TOKEN
+from cmstodo.settings import WECHAT_TOKEN
 from django.utils.encoding import smart_str,smart_unicode
 from django.http import HttpResponse
 
@@ -75,8 +76,15 @@ def insert(request,wx_flag=None):
 @login_required
 def manage(request):
     if request.user.is_superuser:
-        p = People.objects.all()
-        return render_to_response('usernet/active.html', {'Posts': p},
+        p=[]
+        if request.method == "GET":
+            return render_to_response('usernet/manage.html', {'p': p},
+                              context_instance=RequestContext(request))
+        if request.method == "POST":
+            q = request.POST.get("q")
+            if q !='':
+                p = People.objects.filter(Usr_Name__contains=q)
+                return render_to_response('usernet/manage.html', {'p':p},
                               context_instance=RequestContext(request))
     status = "你没有权限！"
     status_code = 0
@@ -84,21 +92,37 @@ def manage(request):
                               context_instance=RequestContext(request))
 @login_required
 def active(request):
-    p_id = request.GET.get('id','')
-    p_name = request.GET.get('name','')
-    p_openid = request.GET.get('openid','')
-    p_password = request.GET.get('password','')
+    if request.method == 'GET':
+        p_id = request.GET.get('id','')
+        p = People.objects.get(id = p_id)
+        p.uuid=""
+        a = None
+        try:
+            a = ActiveUsr.objects.get(uuid = p.uuid)
+        except ActiveUsr.DoesNotExist:
+            messages.add_message(request,messages.WARNING,"HELLO WORLD INFO")
+        else:
+            messages.add_message(request,messages.SUCCESS,"HELLO WORLD")
 
-    a = ActiveUsr(Usr_Name = p_name, OpenId = p_openid)
-    a.save()
+        return render_to_response('usernet/active.html',{'post':p,'active':a},
+                              context_instance=RequestContext(request))
 
-    p = People.objects.get(id = p_id)
-    p.active = 1
-    p.save()
 
-    user = User.objects.create_user(username=p_name,password=p_password,)
-    user.save
 
+    if request.method == 'POST':
+        p_name = request.POST.get('name')
+        p_password = request.POST.get('password')
+        p_id = request.POST.get('id')
+
+        a = ActiveUsr(Usr_Name = p_name, )
+        a.save()
+
+        p = People.objects.get(id = p_id)
+        p.active = 1
+        p.save()
+
+        user = User.objects.create_user(username=p_name,password=p_password,)
+        user.save
 
 
     status = "ok"
@@ -209,6 +233,8 @@ def login_view(request):
         if user is not None:
             login(request, user)
             print request.user
+            if request.user.is_superuser:
+                return HttpResponseRedirect('../../usernet/manage/')
             return HttpResponseRedirect('../../usernet/my/')
     return render_to_response('usernet/login.html',{},
                               context_instance=RequestContext(request))

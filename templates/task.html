@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+  </head>
+  <body>
+  <div class="container">
+  <form role="form" action="" method="POST">
+  {% csrf_token %}
+  <label class="control-label"></label>
+    <div>
+      <p class="form-control-static h3">{{base_values.tasktime}}</p>
+    </div>
+   <label class="control-label h3"></label>
+    <div>
+      <p class="form-control-static">{{base_values.content}}</p>
+    </div>
+   <label class="control-label"></label>
+    <div>
+      <p class="form-control-static small">销售：{{base_values.sale}}</p>
+    </div>
+  <div class="form-group">
+    <input type="hidden" name="id" class="form-control " value={{base_values.id}}>
+  </div>
+  <hr>
+  <div class="form-group">
+  <label for="feedback">反馈</label>
+    <textarea class="form-control" id="feedback" name="feedback" rows="3" placeholder="填写项目实际情况"></textarea>
+  </div>
+  
+  <label for="hours">工时</label>
+
+{%for hs in hour%}
+ <div class="radio">
+  <label>
+    <input type="radio" name="hours" id="hours" value={{hs.id}}>
+    {{hs.name}}
+  </label>
+</div>
+{%endfor%}
+  <button type="submit" class="btn btn-default btn-lg btn-block">Submit</button>
+</form>  
+</div>
+  <script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/static/js/bootstrap.min.js"></script>
+  </body>
+</html>

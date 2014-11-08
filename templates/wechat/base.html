@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" />
+
+  </head>
+  <body>
+
+
+{% block search %}
+  {% endblock %}
+    {% block contant %}
+    {% endblock %}
+<script language="javascript">
+     document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+                      WeixinJSBridge.call('hideOptionMenu');
+        });
+    </script>
+  </body>
+</html>
