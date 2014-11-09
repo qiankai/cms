@@ -102,6 +102,7 @@ def manage(request):
 @login_required
 def umang(request):
     pname = request.user
+    print pname
     px = People.objects.get(Usr_Mobile = pname)
     a = ActiveUsr.objects.get(uuid = px.uuid)
     if a.is_manager == 1:
@@ -196,11 +197,11 @@ def uactive(request):
         try:
             a = ActiveUsr.objects.get(uuid = p.uuid)
         except ActiveUsr.DoesNotExist:
-            messages.add_message(request,messages.WARNING,"HELLO WORLD INFO")
+            messages.add_message(request,messages.WARNING,'no a')
         else:
-            messages.add_message(request,messages.SUCCESS,"HELLO WORLD")
+            messages.add_message(request,messages.SUCCESS,a.is_manager)
 
-        return render_to_response('usernet/uactive.html',{'post':p,'active':a,},
+        return render_to_response('usernet/uactive.html',{'post':p,'a':a,},
                               context_instance=RequestContext(request))
 
 
@@ -360,6 +361,7 @@ def login_view(request):
             if request.user.is_superuser:
                 return HttpResponseRedirect('../../usernet/manage/')
             return HttpResponseRedirect('../../usernet/my/')
+        messages.add_message(request,messages.WARNING,'用户名或密码错误!')
     return render_to_response('usernet/login.html',{},
                               context_instance=RequestContext(request))
 
