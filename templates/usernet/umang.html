@@ -2,7 +2,7 @@
 {% block contant %}
     <div class="container">
 
-    <form class="form-inline" role="form" method="post" action="../manage/">
+    <form class="form-inline" role="form" method="post" action="../uman/">
         {% csrf_token %}
    <div class="form-group">
       <label class="sr-only" for="query">查询</label>
@@ -19,7 +19,7 @@
     <ul class="list-group">
 {% for px in p %}
     <li class="list-group-item list-group-item-heading">
-        <a href = "../active/?id={{ px.id }}">
+        <a href = "../uactive/?id={{ px.id }}">
            <h4>{{ px.Usr_Name }}</h4>
         </a>
     <h6>{{ px.uuid }}</h6>

@@ -12,11 +12,21 @@
   </head>
   <body>
 
+ <div class="container">
+{% if messages %}
 
+    {% for message in messages %}
+    <div {% if message.tags %} class="alert alert-{{ message.tags }} alert-dismissable"{% endif %}>
+    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        {{ message }}</div>
+    {% endfor %}
+
+{% endif %}
 {% block search %}
   {% endblock %}
     {% block contant %}
     {% endblock %}
+ </div>
 <script language="javascript">
      document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
                       WeixinJSBridge.call('hideOptionMenu');

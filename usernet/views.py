@@ -18,12 +18,13 @@ import xml.etree.ElementTree as ET
 import time,json
 import hashlib
 import urllib2
+import uuid
 
 @login_required
 def myloop(request):
     if request.method == 'GET':
         pname = request.user
-        pre = People.objects.filter(Usr_Name = pname)
+        pre = People.objects.filter(Usr_Mobile = pname)
         p = People.objects.filter(Prev_Usr = pre[0],isdel=0)
         status =0
         if p.count()<1:
@@ -32,7 +33,7 @@ def myloop(request):
                               context_instance=RequestContext(request))
 
 @login_required
-def insert(request,wx_flag=None):
+def insert(request):
     status=None
     if request.method == 'POST':
        # save new post
@@ -41,7 +42,8 @@ def insert(request,wx_flag=None):
        Usr_Remark = request.POST.get('remark','')
        tags = request.POST.get('tags','')
        pre_id = request.POST.get('pre_id','')
-       p = People(Usr_Name = Usr_Name,Usr_Mobile = Usr_Mobile,Usr_Remark=Usr_Remark,active = 0,isdel = 0,)
+       p_uuid = uuid.uuid1()
+       p = People(Usr_Name = Usr_Name,Usr_Mobile = Usr_Mobile,Usr_Remark=Usr_Remark,active = 0,isdel = 0,uuid = p_uuid,)
        p.save()
 
        for tag in tags.replace(u'，',',').split(','):
@@ -57,21 +59,24 @@ def insert(request,wx_flag=None):
                p.save()
        if request.user.is_superuser:
            status="ok"
-           return render_to_response('usernet/index.html', {'status':status,'wx_flag':wx_flag},
+           p.Cluster_id = 0
+           p.save()
+           return render_to_response('usernet/index.html', {'status':status,},
                               context_instance=RequestContext(request))
        if pre_id =='':
            pre_id = request.user
        if pre_id != '':
            try:
-               pre = People.objects.filter(Usr_Name = pre_id,active = 1)
+               pre = People.objects.filter(Usr_Mobile = pre_id,active = 1)
            except People.DoesNotExist:
                print "error"
            else:
                p.Prev_Usr=pre[0]
+               p.Cluster_id = pre[0].Cluster_id
                p.save()
        status="ok"
     # Get all posts from DB
-    return render_to_response('usernet/index.html', {'status':status,'wx_flag':wx_flag},
+    return render_to_response('usernet/index.html', {'status':status,},
                               context_instance=RequestContext(request))
 @login_required
 def manage(request):
@@ -86,16 +91,44 @@ def manage(request):
                 p = People.objects.filter(Usr_Name__contains=q)
                 return render_to_response('usernet/manage.html', {'p':p},
                               context_instance=RequestContext(request))
+
+
+
     status = "你没有权限！"
     status_code = 0
     return render_to_response('usernet/message.html', {'status': status,'status_code':status_code,},
                               context_instance=RequestContext(request))
+
+@login_required
+def umang(request):
+    pname = request.user
+    px = People.objects.get(Usr_Mobile = pname)
+    a = ActiveUsr.objects.get(uuid = px.uuid)
+    if a.is_manager == 1:
+        p=[]
+        if request.method == "GET":
+            return render_to_response('usernet/umang.html', {'p': p,},
+                              context_instance=RequestContext(request))
+        if request.method == "POST":
+            q = request.POST.get("q")
+            if q !='':
+                p = People.objects.filter(Usr_Name__contains=q,Cluster_id = a.Cluster_id,isdel = 0)
+                return render_to_response('usernet/umang.html', {'p':p},
+                              context_instance=RequestContext(request))
+
+    status = "你没有权限！"
+    status_code = 0
+    return render_to_response('usernet/message.html', {'status': status,'status_code':status_code,},
+                              context_instance=RequestContext(request))
+
+
 @login_required
 def active(request):
     if request.method == 'GET':
         p_id = request.GET.get('id','')
         p = People.objects.get(id = p_id)
-        p.uuid=""
+
+
         a = None
         try:
             a = ActiveUsr.objects.get(uuid = p.uuid)
@@ -104,25 +137,97 @@ def active(request):
         else:
             messages.add_message(request,messages.SUCCESS,"HELLO WORLD")
 
-        return render_to_response('usernet/active.html',{'post':p,'active':a},
+        return render_to_response('usernet/active.html',{'post':p,'active':a,},
                               context_instance=RequestContext(request))
-
 
 
     if request.method == 'POST':
         p_name = request.POST.get('name')
         p_password = request.POST.get('password')
         p_id = request.POST.get('id')
+        p_user_id = request.POST.get('userid')
+        clustid = request.POST.get('clustid')
 
-        a = ActiveUsr(Usr_Name = p_name, )
-        a.save()
+        is_manager = request.POST.get('is_manager')
+
+        ism = 0
+        if is_manager == '1':
+            ism = 1
+
 
         p = People.objects.get(id = p_id)
-        p.active = 1
+
+        cid = p.Cluster_id
+
+        if clustid == '1':
+            cid = p.uuid
+            print cid
+        p.Cluster_id = cid
         p.save()
 
-        user = User.objects.create_user(username=p_name,password=p_password,)
-        user.save
+
+        if p_password !=None:
+            user = User.objects.create_user(username=p_user_id,password=p_password,)
+            user.save
+            a = ActiveUsr(Usr_Name = p_name,uuid = p.uuid,Cluster_id = cid,is_manager = ism )
+            a.save()
+            p.active = 1
+            p.save()
+        else:
+            a = ActiveUsr.objects.get(uuid = p.uuid)
+            a.Cluster_id  = cid
+            a.is_manager = ism
+            a.save()
+
+
+    status = "ok"
+    status_code = 1
+
+    return render_to_response('usernet/message.html',{'status':status,'status_code':status_code,},
+                              context_instance=RequestContext(request))
+
+@login_required
+def uactive(request):
+    if request.method == 'GET':
+        p_id = request.GET.get('id','')
+        p = People.objects.get(id = p_id)
+
+        a = None
+        try:
+            a = ActiveUsr.objects.get(uuid = p.uuid)
+        except ActiveUsr.DoesNotExist:
+            messages.add_message(request,messages.WARNING,"HELLO WORLD INFO")
+        else:
+            messages.add_message(request,messages.SUCCESS,"HELLO WORLD")
+
+        return render_to_response('usernet/uactive.html',{'post':p,'active':a,},
+                              context_instance=RequestContext(request))
+
+
+    if request.method == 'POST':
+        p_name = request.POST.get('name')
+        p_password = request.POST.get('password')
+        p_id = request.POST.get('id')
+        p_user_id = request.POST.get('userid')
+
+        is_manager = request.POST.get('is_manager')
+
+        ism = 0
+        if is_manager == '1':
+            ism = 1
+        p = People.objects.get(id = p_id)
+
+        if p_password !=None:
+            user = User.objects.create_user(username=p_user_id,password=p_password,)
+            user.save
+            a = ActiveUsr(Usr_Name = p_name,uuid = p.uuid,Cluster_id=p.Cluster_id,is_manager = ism )
+            a.save()
+            p.active = 1
+            p.save()
+        else:
+            a = ActiveUsr.objects.get(uuid = p.uuid)
+            a.is_manager = ism
+            a.save()
 
 
     status = "ok"
@@ -139,6 +244,26 @@ def search(request):
     status=1
     if request.method == 'POST':
         q = request.POST.get("q")
+        pname = request.user
+        dd  = People.objects.get(Usr_Mobile = pname)
+        print dd.Cluster_id
+        if dd.Cluster_id != None:
+            if q !='':
+                p = People.objects.filter(Usr_Name__contains=q,isdel=0,Cluster_id = dd.Cluster_id)
+                tag = Tags.objects.filter(tag__contains = q)
+                p_l = []
+                for t in tag:
+                    x =  People.objects.filter(tags = t,isdel=0,Cluster_id = dd.Cluster_id)
+                    p_l.append(x)
+                pre_man = People.objects.filter(Usr_Name__contains=q,isdel=0,Cluster_id = dd.Cluster_id)
+                pre_l=[]
+                for pre in pre_man:
+                    pre_x = People.objects.filter(Prev_Usr = pre,isdel=0,Cluster_id = dd.Cluster_id)
+                    pre_l.append(pre_x)
+            if p.count()<1 and p_l==[] and pre_l==[]:
+                status=0
+            return render_to_response('usernet/search.html',{'p':p ,'p_l':p_l,'pre_l':pre_l,'status':status},
+                              context_instance=RequestContext(request))
         if q !='':
             p = People.objects.filter(Usr_Name__contains=q,isdel=0)
             tag = Tags.objects.filter(tag__contains = q)
@@ -153,7 +278,6 @@ def search(request):
                 pre_l.append(pre_x)
         if p.count()<1 and p_l==[] and pre_l==[]:
             status=0
-
     return render_to_response('usernet/search.html',{'p':p ,'p_l':p_l,'pre_l':pre_l,'status':status},
                               context_instance=RequestContext(request))
 @login_required

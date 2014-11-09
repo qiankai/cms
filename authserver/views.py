@@ -6,7 +6,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.encoding import smart_str,smart_unicode
-from cmstodo.settings import APPID,SECRET,WECHAT_TOKEN
+from cmstodo.settings import APPID,APPSECRET,WECHAT_TOKEN
 from django.core.cache import cache
 
 from models import APDevice, People, LoginTmp, LoginHistory, Device
@@ -20,10 +20,10 @@ import json
 import uuid
 
 def createMenu(request):
-    menu = '''{"button":[{"type":"view","name": "新增人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6ea75ebf77f14498&redirect_uri=http://www.linsuo.com/wechat/insert&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"},{"type":"view","name": "查询人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6ea75ebf77f14498&redirect_uri=http://www.linsuo.com/wechat/search&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"}]}'''
+    menu = '''{"button":[{"type":"view","name": "新增人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa1dffce607b94e53&redirect_uri=http://www.linsuo.com/wechat/insert&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"},{"type":"view","name": "查询人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa1dffce607b94e53&redirect_uri=http://www.linsuo.com/wechat/search&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"}]}'''
 
 
-    access_token = getAccessToken(APPID,SECRET)
+    access_token = getAccessToken(APPID,APPSECRET)
     QR_Create_Urls="https://api.weixin.qq.com/cgi-bin/menu/create?access_token="+ access_token
     print menu
     #req = urllib2.Request(QR_Create_Urls,menu.encode("utf-8"))
@@ -109,12 +109,12 @@ def portal(request):
 def getAccessToken(appid,secret):
     pre_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
     url = pre_url + appid + "&secret=" + secret
-    access_token = cache.get('access_token')
+    access_token = cache.get('access_token1')
     if access_token == None:
         data = urllib2.urlopen(url)
         msg = json.load(data)
         access_token = msg['access_token']
-        cache.set('access_token',access_token,7200)
+        cache.set('access_token1',access_token,7200)
     return access_token
 
 #internal 

@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from views import insert, manage, active, search, show,update,delete,myloop,index,oauth2,bind
+from views import insert, manage, active, search, show,update,delete,myloop,index,oauth2,bind,umang,uactive
 
 urlpatterns=patterns('',
     #url(r'^$','authserver.views.index'),
@@ -13,5 +13,7 @@ urlpatterns=patterns('',
     url(r'^my/',myloop,),
     url(r'^$',index,),
     url(r'^oauth2/',oauth2,),
-    url(r'^bind/',bind,)
+    url(r'^bind/',bind,),
+    url(r'^uman/',umang,),
+    url(r'^uactive/',uactive,),
 )

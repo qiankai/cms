@@ -14,8 +14,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUGE = True
 
-APPID = "wx6ea75ebf77f14498"
-SECRET = "b9649f59a540a25971a27d630493cfdc"
+APPID = "wxa1dffce607b94e53"
+APPSECRET = "8e03f24f449405171fc0dbf94fd29622"
 
 SITE_URL = "http://3.ithinks.sinaapp.com/"
 

@@ -8,8 +8,9 @@ from django.http import HttpResponseRedirect
 from usernet.models import People,Tags,ActiveUsr
 from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
-#from cms0.settings import WECHAT_TOKEN
+from cmstodo.settings import WECHAT_TOKEN,APPID,APPSECRET
 from django.utils.encoding import smart_str,smart_unicode
 from django.http import HttpResponse
 
@@ -17,13 +18,11 @@ import xml.etree.ElementTree as ET
 import time,json
 import hashlib
 import urllib2
+import uuid
 
-WECHAT_TOKEN = "presale_cci"
 #internal
 def getUserInfo(code):
     CODE = code
-    APPID = 'wx6ea75ebf77f14498'
-    APPSECRET = 'b9649f59a540a25971a27d630493cfdc'
 
     url_open_accesstoken = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='+APPID+'&secret='+APPSECRET+'&code='+CODE+'&grant_type=authorization_code'
 
@@ -77,7 +76,6 @@ def show(request):
                               context_instance=RequestContext(request))
 
 def insert(request):
-    status=None
     if request.method == 'POST':
        # save new post
        Usr_Name = request.POST.get('name','')
@@ -85,7 +83,9 @@ def insert(request):
        Usr_Remark = request.POST.get('remark','')
        tags = request.POST.get('tags','')
        pre_id = request.POST.get('pre_id','')
-       p = People(Usr_Name = Usr_Name,Usr_Mobile = Usr_Mobile,Usr_Remark=Usr_Remark,active = 0,isdel = 0,)
+
+       p_uuid = uuid.uuid1()
+       p = People(Usr_Name = Usr_Name,Usr_Mobile = Usr_Mobile,Usr_Remark=Usr_Remark,active = 0,isdel = 0,uuid = p_uuid,)
        p.save()
 
        for tag in tags.replace(u'，',',').split(','):
@@ -109,15 +109,16 @@ def insert(request):
            else:
                p.Prev_Usr=pre[0]
                p.save()
-       status="添加成功"
-       status_code = 1
-       return render_to_response('wechat/message.html',{'status':status,'status_code':status_code,},
+
+       messages.add_message(request,messages.SUCCESS,"添加成功")
+
+       return render_to_response('wechat/message.html',{},
                               context_instance=RequestContext(request))
-    # Get all posts from DB
+
     CODE = request.GET.get('code')
     msg = getUserInfo(CODE)
     pid=msg['openid']
-    return render_to_response('wechat/insert.html', {'status':status,'pid':pid},
+    return render_to_response('wechat/insert.html', {'pid':pid},
                               context_instance=RequestContext(request))
 
 #*********wechat**************
@@ -135,15 +136,10 @@ def bind(request):
             else:
                 a.OpenId = openid
                 a.save()
-                status = "Bind " +  " Success!"
-                status_code = 1
-                return render_to_response('wechat/message.html',{'status':status,'status_code':status_code,},
-                              context_instance=RequestContext(request))
-
+                messages.add_message(request,messages.SUCCESS,"绑定成功")
         else:
-            status = "Bind " +  " failed!"
-            status_code = 0
-        return render_to_response('wechat/message.html',{'status':status,'status_code':status_code,},
+            messages.add_message(request,messages.WARNING,"绑定失败")
+        return render_to_response('wechat/message.html',{},
                               context_instance=RequestContext(request))
 
 
@@ -205,12 +201,12 @@ def getReplyXmlArc(msg):
     try:
         p = ActiveUsr.objects.get(OpenId = openid)
     except ActiveUsr.DoesNotExist:
-        url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6ea75ebf77f14498&redirect_uri=http://www.linsuo.com/wechat/oauth2&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'
+        url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='+APPID+'&redirect_uri=http://www.linsuo.com/wechat/oauth2&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'
         tplHeader =tplHeader % (msg['FromUserName'],msg['ToUserName'],str(int(time.time())),'news', smart_str(1))
         body = ""
         task_url = url
         image_url = ""
-        body += tplBody % (smart_str("OK OK OK"),"",image_url,task_url)
+        body += tplBody % (smart_str("绑定账号"),"",image_url,task_url)
         tpl = tplHeader+body+tplFooter
         return tpl
     else:

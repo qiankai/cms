@@ -15,7 +15,7 @@ class People(models.Model):
     isdel = models.IntegerField(null=True)
     uuid = models.CharField(max_length=256)
 
-    Cluster_id = models.IntegerField(null=True)
+    Cluster_id = models.CharField(max_length=256)
 
     Prev_Usr = models.ForeignKey('self',related_name="Prev_related",null=True)
     Weight = models.IntegerField(null=True)
@@ -30,7 +30,7 @@ class ActiveUsr(models.Model):
     Usr_Name = models.CharField(max_length=256,null=True)
     OpenId = models.CharField(max_length=256,null=True)
     Level = models.IntegerField(null=True)
-    Cluster_id = models.IntegerField(null=True)
+    Cluster_id = models.CharField(max_length=256)
     is_manager = models.IntegerField(null=True)
     uuid = models.CharField(max_length=256)
 

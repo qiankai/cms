@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" />
+
+  </head>
+  <body>
+
+  <nav class="navbar navbar-inverse" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+
+        {% if user.is_superuser %}
+            <span class="icon-bar"></span>
+        {% endif %}
+
+      </button>
+      <a class="navbar-brand" href="#">人脉圈子 | {{ user.username }}</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        {% if not user.is_superuser %}
+        <li><a href="/usernet/my">我的圈子</a></li>
+        <li><a href="/usernet/insert">添加人脉</a></li>
+        <li><a href="/usernet/search">查询人脉</a></li>
+        <li><a href="/usernet/uman">激活用户</a></li>
+        {% block bar%}
+        {% endblock %}
+        {% else %}
+        <li><a href="/usernet/manage">激活用户</a></li>
+
+        {% endif %}
+      </ul>
+
+
+
+
+    <ul class="nav navbar-nav navbar-right">
+
+        {% if user.is_authenticated %}
+                <li><a href="/accounts/passwd">修改密码</a> </li>
+                <li><a href="/accounts/logout">注销</a></li>
+          {% else %}
+                <li><a href="/accounts/login">登录</a></li>
+          {% endif %}
+    </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+  <div class="container">
+{% if messages %}
+
+    {% for message in messages %}
+    <div {% if message.tags %} class="alert alert-{{ message.tags }} alert-dismissable"{% endif %}>
+    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        {{ message }}</div>
+    {% endfor %}
+
+{% endif %}
+
+  {% block search %}
+  {% endblock %}
+
+    {% block contant %}
+    {% endblock %}
+</div>
+  </body>
+</html>

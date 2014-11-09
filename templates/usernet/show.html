@@ -7,7 +7,7 @@
 
   </div>
   <div class="panel-body">
-  {% if user.username == person.Prev_Usr.Usr_Name %}
+  {% if user.username == person.Prev_Usr.Usr_Mobile %}
     <p>电话：{{ person.Usr_Mobile }}</p>
   {% endif %}
 <p>备注：{{ person.Usr_Remark }}</p>
@@ -19,7 +19,7 @@
 </p>
   <p>最近更新时间：{{ person.Last_Update }}</p>
   </div>
-{% if user.username == person.Prev_Usr.Usr_Name %}
+{% if user.username == person.Prev_Usr.Usr_Mobile %}
 <div class="panel-footer panel-info">
   <div class="row">
       <div class="col-xs-3">
