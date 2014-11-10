@@ -248,7 +248,7 @@ def search(request):
         pname = request.user
         dd  = People.objects.get(Usr_Mobile = pname)
         print dd.Cluster_id
-        if dd.Cluster_id != None:
+        if dd.Cluster_id != '0':
             if q !='':
                 p = People.objects.filter(Usr_Name__contains=q,isdel=0,Cluster_id = dd.Cluster_id)
                 tag = Tags.objects.filter(tag__contains = q)

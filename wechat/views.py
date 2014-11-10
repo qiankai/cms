@@ -41,6 +41,13 @@ def search(request):
     if request.method == 'GET':
         CODE = request.GET.get('code')
         msg = getUserInfo(CODE)
+        pid=msg['openid']
+        try:
+            a = ActiveUsr.objects.get(OpenId = pid)
+        except ActiveUsr.DoesNotExist:
+            messages.add_message(request,messages.WARNING,"请绑定账号")
+            return render_to_response('wechat/message.html',{},
+                              context_instance=RequestContext(request))
     p=[]
     p_l=[]
     pre_l=[]
@@ -114,10 +121,15 @@ def insert(request):
 
        return render_to_response('wechat/message.html',{},
                               context_instance=RequestContext(request))
-
     CODE = request.GET.get('code')
     msg = getUserInfo(CODE)
     pid=msg['openid']
+    try:
+        a = ActiveUsr.objects.get(OpenId = pid)
+    except ActiveUsr.DoesNotExist:
+        messages.add_message(request,messages.WARNING,"请绑定账号")
+        return render_to_response('wechat/message.html',{},
+                              context_instance=RequestContext(request))
     return render_to_response('wechat/insert.html', {'pid':pid},
                               context_instance=RequestContext(request))
 
@@ -222,6 +234,16 @@ def getReplyXmlArc(msg):
         else:
             data = msg['Content']
             return getReplyXml(msg,data)
+        if data =='bind':
+            url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='+APPID+'&redirect_uri=http://www.linsuo.com/wechat/oauth2&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect'
+            tplHeader =tplHeader % (msg['FromUserName'],msg['ToUserName'],str(int(time.time())),'news', smart_str(1))
+            body = ""
+            task_url = url
+            image_url = ""
+            body += tplBody % (smart_str("绑定账号"),"",image_url,task_url)
+            tpl = tplHeader+body+tplFooter
+            return tpl
+
 
 
 def responseMsg(request):

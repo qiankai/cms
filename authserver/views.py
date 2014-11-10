@@ -20,7 +20,7 @@ import json
 import uuid
 
 def createMenu(request):
-    menu = '''{"button":[{"type":"view","name": "新增人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa1dffce607b94e53&redirect_uri=http://www.linsuo.com/wechat/insert&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"},{"type":"view","name": "查询人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa1dffce607b94e53&redirect_uri=http://www.linsuo.com/wechat/search&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"}]}'''
+    menu = '''{"button":[{"type":"click","name": "绑定账户","key": "bind"},{"type":"view","name": "新增人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa1dffce607b94e53&redirect_uri=http://www.linsuo.com/wechat/insert&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"},{"type":"view","name": "查询人脉","url": "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa1dffce607b94e53&redirect_uri=http://www.linsuo.com/wechat/search&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect"}]}'''
 
 
     access_token = getAccessToken(APPID,APPSECRET)
