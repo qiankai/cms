@@ -113,6 +113,14 @@ def umang(request):
         if request.method == "POST":
             q = request.POST.get("q")
             if q !='':
+                '''
+                if a.Cluster_id =='0':
+                    p = People.objects.filter(Usr_Name__contains=q,isdel = 0)
+                else:
+                    p = People.objects.filter(Usr_Name__contains=q,Cluster_id = a.Cluster_id,isdel = 0)
+                return render_to_response('usernet/umang.html', {'p':p},
+                              context_instance=RequestContext(request))
+                              '''
                 p = People.objects.filter(Usr_Name__contains=q,Cluster_id = a.Cluster_id,isdel = 0)
                 return render_to_response('usernet/umang.html', {'p':p},
                               context_instance=RequestContext(request))
