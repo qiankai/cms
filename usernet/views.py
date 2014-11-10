@@ -391,12 +391,10 @@ def passwd_view(request):
         if user.check_password(old_passwd):
             user.set_password(new_passwd)
             user.save()
-            status = "修改密码成功!"
-            status_code = 1
+            messages.add_message(request,messages.SUCCESS,"密码修改成功")
         else:
-            status = "密码修改失败，请重试！【旧密码错误】"
-            status_code = 0
-        return render_to_response('usernet/message.html',{'status':status,'status_code':status_code,},context_instance=RequestContext(request))
+            messages.add_message(request,messages.WARNING,"密码修改失败，请重试！")
+        return render_to_response('usernet/message.html',{},context_instance=RequestContext(request))
     return render_to_response('usernet/passwd.html',{},
                               context_instance=RequestContext(request))
 
