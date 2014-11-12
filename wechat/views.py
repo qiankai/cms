@@ -115,6 +115,7 @@ def insert(request):
                print "error"
            else:
                p.Prev_Usr=pre[0]
+               p.Cluster_id = pre[0].Cluster_id
                p.save()
 
        messages.add_message(request,messages.SUCCESS,"添加成功")
