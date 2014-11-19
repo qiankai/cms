@@ -10,7 +10,7 @@ from django.core.cache import cache
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 
-from cmstodo.settings import WECHAT_TOKEN,APPID,APPSECRET
+from cms0.settings import WECHAT_TOKEN,APPID,APPSECRET
 from django.utils.encoding import smart_str,smart_unicode
 from django.http import HttpResponse
 
@@ -54,6 +54,25 @@ def search(request):
     status=1
     if request.method == 'POST':
         q = request.POST.get("q")
+        pid = request.POST.get("pid")
+        act = ActiveUsr.objects.get(OpenId = pid)
+        dd  = People.objects.get(uuid = act.uuid)
+        if dd.Cluster_id != '0':
+            if q !='':
+                p = People.objects.filter(Usr_Name__contains=q,isdel=0,Cluster_id = dd.Cluster_id)
+                tag = Tags.objects.filter(tag__contains = q)
+                p_l = []
+                for t in tag:
+                    x =  People.objects.filter(tags = t,isdel=0,Cluster_id = dd.Cluster_id)
+                    p_l.append(x)
+                pre_man = People.objects.filter(Usr_Name__contains=q,isdel=0,Cluster_id = dd.Cluster_id)
+                pre_l=[]
+                for pre in pre_man:
+                    pre_x = People.objects.filter(Prev_Usr = pre,isdel=0,Cluster_id = dd.Cluster_id)
+                    pre_l.append(pre_x)
+            if p.count()<1 and p_l==[] and pre_l==[]:
+                status=0
+            return render_to_response('wechat/search.html',{'p':p ,'p_l':p_l,'pre_l':pre_l,'status':status},context_instance=RequestContext(request))
         if q !='':
             p = People.objects.filter(Usr_Name__contains=q,isdel=0)
             tag = Tags.objects.filter(tag__contains = q)
@@ -69,7 +88,7 @@ def search(request):
         if p.count()<1 and p_l==[] and pre_l==[]:
             status=0
 
-    return render_to_response('wechat/search.html',{'p':p ,'p_l':p_l,'pre_l':pre_l,'status':status},
+    return render_to_response('wechat/search.html',{'p':p ,'p_l':p_l,'pre_l':pre_l,'status':status,'pid':pid},
                               context_instance=RequestContext(request))
 
 def show(request):
@@ -110,7 +129,7 @@ def insert(request):
        if pre_id != '':
            act = ActiveUsr.objects.get(OpenId = pre_id)
            try:
-               pre = People.objects.filter(Usr_Name = act.Usr_Name,active = 1)
+               pre = People.objects.filter(uuid = act.uuid ,active = 1)
            except People.DoesNotExist:
                print "error"
            else:
@@ -143,7 +162,8 @@ def bind(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             try:
-                a = ActiveUsr.objects.get(Usr_Name = username)
+                p = People.objects.get(Usr_Mobile = username)
+                a = ActiveUsr.objects.get(uuid = p.uuid)
             except ActiveUsr.DoesNotExist:
                 pass
             else:
